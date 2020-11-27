@@ -16,8 +16,8 @@
         <activity
             android:name="com.ansdoship.virtualpixeldungeon.AndroidLauncher"
             android:label="@string/app_name" 
-            android:screenOrientation="landscape"
-            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|screenLayout">
+            android:screenOrientation="fullSensor"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

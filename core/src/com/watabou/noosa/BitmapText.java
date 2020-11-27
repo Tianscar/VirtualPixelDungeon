@@ -5,6 +5,9 @@
  * Shattered Pixel Dungeon
  * Copyright (C) 2014-2021 Evan Debenham
  *
+ * Virtual Pixel Dungeon
+ * Copyright (C) 2020-2021 AnsdoShip Studio
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -45,10 +48,38 @@ public class BitmapText extends Component {
 
 	private int size;
 	private float zoom;
+
 	private int color = -1;
-	
-	private int hightlightColor = Window.TITLE_COLOR;
-	private boolean highlightingEnabled = true;
+	private int[] highlightColors = new int[] {
+			0x000000,
+			0x0000AA,
+			0x00AA00,
+			0x00AAAA,
+			0xAA0000,
+			0xAA00AA,
+			0xFFAA00,
+			0xAAAAAA,
+			0x555555,
+			0x5555FF,
+			0x55FF55,
+			0x55FFFF,
+			0xFF5555,
+			0xFF55FF,
+			0xFFFF55,
+			0xFFFFFF,
+			0xDDD605
+	};
+	private int highlightColor = color;
+	private static final String highlightSymbols = "0123456789abcdef";
+	private int highlightColorIndex = -1;
+	private boolean highlightSymbolDetected = false;
+	private static final int NORMAL = -1;
+	private static final int BOLD = 0;
+	private static final int ITALIC = 1;
+	private static final int DELETELINE = 2;
+	private static final int UNDERLINE = 3;
+	private static final int RANDOM = 4;
+	private static int wordStyle = NORMAL;
 
 	public static final int LEFT_ALIGN = 1;
 	public static final int CENTER_ALIGN = 2;
@@ -153,37 +184,63 @@ public class BitmapText extends Component {
 		
 		clear();
 		words = new ArrayList<>();
-		boolean highlighting = false;
+
+		highlightColorIndex = -1;
+		highlightSymbolDetected = false;
 		for (String str : tokens){
-//			for (int i = 0; i < tokens.length; i++) {
-//               String str = tokens[i];
-//                String str2 = tokens[i+1];
-//                int textcolor;
-////			if (str.equals("_") && highlightingEnabled){
-////				highlighting = !highlighting;
-//            if (str.equals("§")){
-//                    String result;//最后解析result 转换成整数型颜色值textcolor
-//                    if (str2.equals("[")){
-//                        for (int n = 2; n < 10; n++) {//检测[]内是否合规
-//                            String str3 = tokens[i+n];
-//                            if (str3.equals("]")){
-//                            if (str3.equals("]") && n == 10){}}
-//                        }
-//                    } else {
-//                        //检测到不是§[]格式 返回到单字节颜色代码
-//                        result = str2;
-//                        
-//                    }
-			//} else 
-            if (str.equals("\n")){
+
+            if (str.equals("\n")) {
 				words.add(NEWLINE);
-			} else if (str.equals(" ")){
+            }
+            else if (str.equals(" ")) {
 				words.add(SPACE);
-			} else {
+			}
+            else if (str.equals("§")) {
+            	highlightSymbolDetected = true;
+			}
+            else {
+				if (highlightSymbolDetected) {
+					if (highlightSymbols.contains(String.valueOf(str.charAt(0)))) {
+						highlightColorIndex = highlightSymbols.indexOf(String.valueOf(str.charAt(0)));
+					}
+					else if (String.valueOf(str.charAt(0)).equals("k")){
+						wordStyle = wordStyle | RANDOM;
+					}
+					else if (String.valueOf(str.charAt(0)).equals("l")){
+						wordStyle = wordStyle | BOLD;
+					}
+					else if (String.valueOf(str.charAt(0)).equals("m")){
+						wordStyle = wordStyle | DELETELINE;
+					}
+					else if (String.valueOf(str.charAt(0)).equals("n")){
+						wordStyle = UNDERLINE;
+					}
+					else if (String.valueOf(str.charAt(0)).equals("o")){
+						wordStyle = wordStyle | ITALIC;
+					}
+					else if (String.valueOf(str.charAt(0)).equals("r")){
+						wordStyle = NORMAL;
+					}
+					else if (String.valueOf(str.charAt(0)).equals("[")){
+
+					}
+					str = str.substring(1);
+					highlightSymbolDetected = false;
+				}
 				RenderedText word = new RenderedText(str, size);
-                    //原来的高亮 word.hardlight(颜色值);即可
-				if (highlighting) word.hardlight(hightlightColor);
-				else if (color != -1) word.hardlight(color);
+				//原来的高亮 word.hardlight(颜色值);即可
+				if (highlightColorIndex != -1) {
+					word.hardlight(highlightColors[highlightColorIndex]);
+				}
+				else if (color != -1) {
+					word.hardlight(color);
+				}
+				if (wordStyle == UNDERLINE) {
+					word.setStyle(RenderedText.UNDERLINE);
+				}
+				else {
+					word.setStyle(RenderedText.NORMAL);
+				}
 				word.scale.set(zoom);
 				
 				words.add(word);
@@ -220,18 +277,6 @@ public class BitmapText extends Component {
 	public synchronized void alpha(float value){
 		for (RenderedText word : words) {
 			if (word != null) word.alpha( value );
-		}
-	}
-	
-	public synchronized void setHightlighting(boolean enabled){
-		setHightlighting(enabled, Window.TITLE_COLOR);
-	}
-	
-	public synchronized void setHightlighting(boolean enabled, int color){
-		if (enabled != highlightingEnabled || color != hightlightColor) {
-			hightlightColor = color;
-			highlightingEnabled = enabled;
-			build();
 		}
 	}
 

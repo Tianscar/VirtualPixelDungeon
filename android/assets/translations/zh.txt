@@ -24,7 +24,7 @@ To unlock "Challenges", win the game with any character class.
 WARRIOR
 战士
 Warrior
-战士
+§n战士
 Warriors start with 11 points of Strength.
 战士起始拥有11点力量.
 Warriors start with a unique short sword. This sword can be later "reforged" to upgrade another melee weapon.

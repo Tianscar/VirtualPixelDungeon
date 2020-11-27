@@ -5,6 +5,9 @@
  * Shattered Pixel Dungeon
  * Copyright (C) 2014-2021 Evan Debenham
  *
+ * Virtual Pixel Dungeon
+ * Copyright (C) 2020-2021 AnsdoShip Studio
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -42,6 +45,15 @@ public class RenderedText extends Image {
 	private BitmapFont font = null;
 	private int size;
 	private String text;
+
+	public static final int NORMAL = -1;
+	public static final int BOLD = 0;
+	public static final int ITALIC = 1;
+	public static final int DELETELINE = 2;
+	public static final int UNDERLINE = 3;
+	public static final int RANDOM = 4;
+
+	private int style = NORMAL;
 	
 	public RenderedText( ) {
 		text = null;
@@ -73,7 +85,20 @@ public class RenderedText extends Image {
 		this.size = size;
 		measure();
 	}
-	
+
+	public void setStyle (int style) {
+		this.style = style;
+	}
+
+	public int getStyle() {
+		return style;
+	}
+
+	public void addStyle (int style) {
+		this.style = this.style | style;
+		measure();
+	}
+
 	private synchronized void measure(){
 		
 		if ( text == null || text.equals("") ) {
@@ -131,14 +156,29 @@ public class RenderedText extends Image {
 			updateMatrix();
 			TextRenderBatch.textBeingRendered = this;
 			font.draw(textRenderer, text, 0, 0);
+			if (style == BOLD) {
+
+			}
+			if (style == ITALIC) {
+
+			}
+			if (style == DELETELINE) {
+
+			}
+			if (style == UNDERLINE) {
+				font.draw(textRenderer, text.replaceAll(".", "_"), 0, 0);
+			}
+			if (style == RANDOM) {
+
+			}
 		}
 	}
 
-	//implements regular PD rendering within a libGDX batch so that our rendering logic
-	//can interface with the freetype font generator
+	// implements regular PD rendering within a libGDX batch so that our rendering logic
+	// can interface with the freetype font generator
 	private static class TextRenderBatch implements Batch {
 		
-		//this isn't as good as only updating once, like with bitmaptext
+		// this isn't as good as only updating once, like with bitmaptext
 		// but it skips almost all allocations, which is almost as good
 		private static RenderedText textBeingRendered = null;
 		private static float[] vertices = new float[16];
