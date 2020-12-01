@@ -236,6 +236,21 @@ public class Visual extends Gizmo {
 	public void color( int color ) {
 		color( ((color >> 16) & 0xFF) / 255f, ((color >> 8) & 0xFF) / 255f, (color & 0xFF) / 255f );
 	}
+    
+    public boolean color(Visual template ) {
+        if (template != null){
+        rm = template.rm;
+        gm = template.gm;
+        bm = template.bm;
+        am = template.am;
+        ra = template.ra;
+        ga = template.ga;
+		ba = template.ba;
+        aa = template.aa;
+        return true;
+        }
+        return false;
+    }
 	
 	public void hardlight( float r, float g, float b ) {
 		ra = ga = ba = 0;

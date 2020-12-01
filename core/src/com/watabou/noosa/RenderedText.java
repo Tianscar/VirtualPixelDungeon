@@ -39,6 +39,9 @@ import com.watabou.glwrap.Quad;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.watabou.gdx.GdxTexture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 
 public class RenderedText extends Image {
 	
@@ -53,7 +56,7 @@ public class RenderedText extends Image {
 	public static final int UNDERLINE = 3;
 	public static final int RANDOM = 4;
 
-	private int style = NORMAL;
+	private int style = UNDERLINE;
 	
 	public RenderedText( ) {
 		text = null;
@@ -88,6 +91,7 @@ public class RenderedText extends Image {
 
 	public void setStyle (int style) {
 		this.style = style;
+        measure();
 	}
 
 	public int getStyle() {
@@ -98,6 +102,13 @@ public class RenderedText extends Image {
 		this.style = this.style | style;
 		measure();
 	}
+    
+    public static Pixmap createSolid( int color ) {
+        final Pixmap pixmap = new Pixmap(10, 10, Pixmap.Format.RGBA8888);
+        pixmap.setColor( (color << 8) | (color >>> 24) );
+        pixmap.fill();
+        return pixmap;
+    }
 
 	private synchronized void measure(){
 		
@@ -109,8 +120,14 @@ public class RenderedText extends Image {
 		} else {
 			visible = true;
 		}
+		if (style == BOLD) {
+            font = Game.platform.getBoldFont(size, text);
+        } else if (style == ITALIC) {
+            font = Game.platform.getItalicFont(size, text);
+        } else{
+            font = Game.platform.getFont(size, text);
+        }
 		
-		font = Game.platform.getFont(size, text);
 		
 		if (font != null){
 			GlyphLayout glyphs = new GlyphLayout( font, text);
@@ -118,7 +135,7 @@ public class RenderedText extends Image {
 			for (char c : text.toCharArray()) {
 				BitmapFont.Glyph g = font.getData().getGlyph(c);
 				if (g == null || (g.id != c)){
-					Gdx.app.log("cs","font file " + font.toString() + " could not render " + c);
+					Gdx.app.log("font","font file " + font.toString() + " could not render " + c);
 				}
 			}
 			
@@ -155,6 +172,7 @@ public class RenderedText extends Image {
 		if (font != null) {
 			updateMatrix();
 			TextRenderBatch.textBeingRendered = this;
+//            Sprite lineSprite = new Sprite(createSolid(0xFFFFFF));
 			font.draw(textRenderer, text, 0, 0);
 			if (style == BOLD) {
 
@@ -166,7 +184,11 @@ public class RenderedText extends Image {
 
 			}
 			if (style == UNDERLINE) {
-				font.draw(textRenderer, text.replaceAll(".", "_"), 0, 0);
+//               StringBuilder sb = new StringBuilder();
+//                for (int i = 0; i < text.length(); i++) {
+//                    sb.replace(i, i, "_");
+//                }
+//				font.draw(textRenderer, sb, 0, 0);
 			}
 			if (style == RANDOM) {
 
@@ -187,7 +209,9 @@ public class RenderedText extends Image {
 		@Override
 		public void draw(Texture texture, float[] spriteVertices, int offset, int count) {
 			Visual v = textBeingRendered;
-			
+//	        Pixmap pixmap = texture.getTextureData().consumePixmap();
+//            pixmap.drawLine(pixmap.getWidth()-5, pixmap.getHeight()-5, pixmap.getWidth(), pixmap.getHeight());
+//            texture = new Texture(pixmap);
 			FloatBuffer toOpenGL;
 			if (buffers.containsKey(count/20)){
 				toOpenGL = buffers.get(count/20);

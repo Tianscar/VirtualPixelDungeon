@@ -30,6 +30,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+import com.watabou.noosa.Group;
+import com.watabou.utils.PointF;
 
 public class Flare extends Visual {
 
@@ -112,6 +114,15 @@ public class Flare extends Visual {
 	public Flare show( Visual visual, float duration ) {
 		point( visual.center() );
 		visual.parent.addToBack( this );
+
+		lifespan = this.duration = duration;
+
+		return this;
+	}
+	
+	public Flare show( Group parent, PointF pos, float duration ) {
+		point( pos );
+		parent.add( this );
 
 		lifespan = this.duration = duration;
 

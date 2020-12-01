@@ -27,9 +27,13 @@ import com.watabou.utils.Point;
 import com.watabou.utils.PointF;
 
 public class ScrollPane extends Component {
+    
+    protected static final int THUMB_COLOR      = 0xFF7b8073;
+    protected static final float THUMB_ALPHA    = 0.5f;
 
 	protected TouchController controller;
 	protected Component content;
+    protected ColorBlock thumb;
 
 	protected float minX;
 	protected float minY;
@@ -63,6 +67,10 @@ public class ScrollPane extends Component {
 	protected void createChildren() {
 		controller = new TouchController();
 		add( controller );
+        
+        thumb = new ColorBlock( 1, 1,THUMB_COLOR );
+        thumb.am = THUMB_ALPHA;
+		add( thumb );
 	}
 
 	@Override
@@ -79,6 +87,13 @@ public class ScrollPane extends Component {
 		cs.x = p.x;
 		cs.y = p.y;
 		cs.resize( (int)width, (int)height );
+        
+        thumb.visible = height < content.height();
+        if (thumb.visible) {
+            thumb.scale.set( 2, height * height / content.height() );
+            thumb.x = right() - thumb.width();
+            thumb.y = y;
+		}
 	}
 
 	public Component content() {
@@ -102,6 +117,7 @@ public class ScrollPane extends Component {
 			if (dragging) {
 
 				dragging = false;
+                thumb.am = THUMB_ALPHA;
 
 			} else {
 
@@ -125,6 +141,7 @@ public class ScrollPane extends Component {
 			} else if (PointF.distance( t.current, t.start ) > dragThreshold) {
 
 				dragging = true;
+                thumb.am = 1;
 				lastPos.set( t.current );
 
 			}
@@ -154,6 +171,7 @@ public class ScrollPane extends Component {
 			if (c.scroll.y < 0) {
 				c.scroll.y = 0;
 			}
+            thumb.y = y + height * c.scroll.y / content.height();
 
 			lastPos.set(current);
 		}

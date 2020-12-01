@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 public class Translator {
     private String language;
     private HashMap<String, String> translation;
+    private String type[] = {"actors", "items", "scenes", "windows"};
 
     public Translator(String language) {
         this.language = language;
@@ -22,10 +23,11 @@ public class Translator {
         // THIS FILE MUST BE UTF8 WITHOUT BOM
         if (!language.equals("en")) {     
             FileHandle file;
-                if (Gdx.files.internal("translations/" + language + ".txt").exists()) {
-                    file = Gdx.files.internal("translations/" + language + ".txt");
-                } else {file = Gdx.files.internal("translations/" + "null" + ".txt");}
-                BufferedReader reader = new BufferedReader(file.reader("UTF-8"));
+            for (int t = 0; t < type.length; t++) {
+                if (Gdx.files.internal("translation/" + type[t] + "/" + language + ".txt").exists()) {
+                    file = Gdx.files.internal("translation/" + type[t] + "/" + language + ".txt");
+                } else {file = Gdx.files.internal("translation/" + "null" + ".txt");}
+                BufferedReader reader = new BufferedReader(file.reader("UTF8"));
                 ArrayList<String> lines = new ArrayList<>();
                 try {
                     String line = reader.readLine();
@@ -37,7 +39,7 @@ public class Translator {
                         line = reader.readLine();
                     }
                     reader.close();
-                } catch (IOException ignored) {
+                } catch (IOException ioe) {
                 }
 
                 // 檢查：翻譯ㄧ定要成對出現
@@ -51,17 +53,21 @@ public class Translator {
                     translation.put(lines.get(i).toLowerCase(), trans);
                 }
             }
+        }
     }
 
     private static boolean isChinese(char c) {
         Character.UnicodeBlock ub = Character.UnicodeBlock.of(c);
-        return ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
-                || ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
-                || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
-                || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B
-                || ub == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION
-                || ub == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS
-                || ub == Character.UnicodeBlock.GENERAL_PUNCTUATION;
+        if (ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
+            || ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
+            || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
+            || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B
+            || ub == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION
+            || ub == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS
+            || ub == Character.UnicodeBlock.GENERAL_PUNCTUATION) {
+            return true;
+        }
+        return false;
     }
 
     public String[] splitWords(String paragraph) {
