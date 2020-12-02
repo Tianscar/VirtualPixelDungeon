@@ -41,6 +41,9 @@ import com.watabou.pixeldungeon.utils.Utils;
 import com.watabou.utils.Callback;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
+import com.watabou.glwrap.Matrix;
+import com.watabou.glwrap.Vertexbuffer;
+import com.watabou.noosa.NoosaScript;
 
 public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip.Listener {
 	
@@ -56,6 +59,11 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 	public enum State {
 		BURNING, LEVITATING, INVISIBLE, PARALYSED, FROZEN, ILLUMINATED
 	}
+    
+    protected boolean renderShadow  = false;
+    protected float shadowWidth     = 1.2f;
+    protected float shadowHeight    = 0.25f;
+	protected float shadowOffset    = 0.25f;
 	
 	protected Animation idle;
 	protected Animation run;
@@ -98,6 +106,7 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 		
 		place( ch.pos );
 		turnTo( ch.pos, Random.Int( Level.LENGTH ) );
+        renderShadow = true;
 		
 		ch.updateSpriteState();
 	}
@@ -390,6 +399,54 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 			emo = null;
 		}
 	}
+    
+    private float[] shadowMatrix = new float[16];
+
+    @Override
+    protected void updateMatrix() {
+        super.updateMatrix();
+        Matrix.copy(matrix, shadowMatrix);
+        Matrix.translate(shadowMatrix,
+                         (width * (1f - shadowWidth)) / 2f,
+                         (height * (1f - shadowHeight)) + shadowOffset);
+        Matrix.scale(shadowMatrix, shadowWidth, shadowHeight);
+	}
+    
+    @Override
+    public void draw() {
+        if (texture == null || (!dirty && buffer == null))
+            return;
+
+        if (renderShadow) {
+            if (dirty) {
+                verticesBuffer.position(0);
+                verticesBuffer.put(vertices);
+                if (buffer == null)
+                    buffer = new Vertexbuffer(verticesBuffer);
+                else
+                    buffer.updateVertices(verticesBuffer);
+                dirty = false;
+            }
+
+            NoosaScript script = script();
+
+            texture.bind();
+
+            script.camera(camera());
+
+            updateMatrix();
+
+            script.uModel.valueM4(shadowMatrix);
+            script.lighting(
+                0, 0, 0, am * .6f,
+                0, 0, 0, aa * .6f);
+
+            script.drawQuad(buffer);
+        }
+
+        super.draw();
+
+	}
 	
 	@Override
 	public void onComplete( Tweener tweener ) {
@@ -436,14 +493,14 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 	
 	private static class JumpTweener extends Tweener {
 
-		public Visual visual;
+		public CharSprite visual;
 		
 		public PointF start;
 		public PointF end;
 		
 		public float height;
 		
-		public JumpTweener( Visual visual, PointF pos, float height, float time ) {
+		public JumpTweener( CharSprite visual, PointF pos, float height, float time ) {
 			super( visual, time );
 			
 			this.visual = visual;
@@ -455,7 +512,9 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 
 		@Override
 		protected void updateValues( float progress ) {
-			visual.point( PointF.inter( start, end, progress ).offset( 0, -height * 4 * progress * (1 - progress) ) );
+            float hVal = -height * 4 * progress * (1 - progress);
+			visual.point( PointF.inter( start, end, progress ).offset( 0, hVal ) );
+            visual.shadowOffset = 0.25f - hVal*0.8f;
 		}
 	}
 }

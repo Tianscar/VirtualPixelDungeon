@@ -76,9 +76,7 @@ public class StatusPane extends Component {
 			@Override
 			protected void onClick( NoosaInputProcessor.Touch touch ) {
 				Image sprite = Dungeon.hero.sprite;
-				if (!sprite.isVisible()) {
-					Camera.main.snapTo( sprite.center() );
-				}
+					Camera.main.panTo( sprite.center(), 4f );
 				GameScene.show( new WndHero() );
 			};			
 		} );

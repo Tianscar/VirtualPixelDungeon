@@ -70,6 +70,7 @@ import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 import com.watabou.pixeldungeon.utils.DungeonSeed;
 import com.watabou.utils.SparseArray;
+import com.watabou.pixeldungeon.levels.RegularChunk;
 
 public class Dungeon {
 	
@@ -195,7 +196,7 @@ public class Dungeon {
 		case 2:
 		case 3:
 		case 4:
-			level = new SewerLevel();
+                level = new RegularChunk();
 			break;
 		case 5:
 			level = new SewerBossLevel();

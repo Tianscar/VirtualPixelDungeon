@@ -24,6 +24,7 @@ import com.watabou.noosa.TextureFilm;
 import com.watabou.pixeldungeon.Assets;
 import com.watabou.pixeldungeon.effects.Speck;
 import com.watabou.pixeldungeon.effects.particles.ShaftParticle;
+import com.watabou.pixeldungeon.actors.Char;
 
 public class GhostSprite extends MobSprite {
 
@@ -44,6 +45,12 @@ public class GhostSprite extends MobSprite {
 		die.frames( frames, 0 );
 
 		play( idle );
+	}
+    
+    @Override
+    public void link(Char ch) {
+        super.link(ch);
+        renderShadow = false;
 	}
 
 	@Override

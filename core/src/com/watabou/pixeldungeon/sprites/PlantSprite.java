@@ -17,8 +17,11 @@
  */
 package com.watabou.pixeldungeon.sprites;
 
+import com.watabou.glwrap.Matrix;
+import com.watabou.glwrap.Vertexbuffer;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Image;
+import com.watabou.noosa.NoosaScript;
 import com.watabou.noosa.TextureFilm;
 import com.watabou.pixeldungeon.Assets;
 import com.watabou.pixeldungeon.Dungeon;
@@ -29,6 +32,11 @@ import com.watabou.pixeldungeon.plants.Plant;
 public class PlantSprite extends Image {
 
 	private static final float DELAY = 0.2f;
+    
+    protected boolean renderShadow  = false;
+    protected float shadowWidth     = 1.2f;
+    protected float shadowHeight    = 0.25f;
+	protected float shadowOffset    = 0f;
 	
 	private static enum State {
 		GROWING, NORMAL, WITHERING
@@ -42,6 +50,7 @@ public class PlantSprite extends Image {
 	
 	public PlantSprite() {
 		super( Assets.PLANTS );
+        renderShadow = true;
 		
 		if (frames == null) {
 			frames = new TextureFilm( texture, 16, 16 );
@@ -72,6 +81,54 @@ public class PlantSprite extends Image {
 	
 	public void reset( int image ) {
 		frame( frames.get( image ) );
+	}
+    
+    private float[] shadowMatrix = new float[16];
+
+    @Override
+    protected void updateMatrix() {
+        super.updateMatrix();
+        Matrix.copy(matrix, shadowMatrix);
+        Matrix.translate(shadowMatrix,
+                         (width * (1f - shadowWidth)) / 2f,
+                         (height * (1f - shadowHeight)) + shadowOffset);
+        Matrix.scale(shadowMatrix, shadowWidth, shadowHeight);
+    }
+
+    @Override
+    public void draw() {
+        if (texture == null || (!dirty && buffer == null))
+            return;
+
+        if (renderShadow) {
+            if (dirty) {
+                verticesBuffer.position(0);
+                verticesBuffer.put(vertices);
+                if (buffer == null)
+                    buffer = new Vertexbuffer(verticesBuffer);
+                else
+                    buffer.updateVertices(verticesBuffer);
+                dirty = false;
+            }
+
+            NoosaScript script = script();
+
+            texture.bind();
+
+            script.camera(camera());
+
+            updateMatrix();
+
+            script.uModel.valueM4(shadowMatrix);
+            script.lighting(
+                0, 0, 0, am * .6f,
+                0, 0, 0, aa * .6f);
+
+            script.drawQuad(buffer);
+        }
+
+        super.draw();
+
 	}
 	
 	@Override

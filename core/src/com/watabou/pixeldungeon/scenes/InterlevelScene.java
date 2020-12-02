@@ -207,7 +207,7 @@ public class InterlevelScene extends PixelScene {
 			break;
 		}
 	}
-	
+	//下楼
 	private void descend() throws IOException{
 		
 		Actor.fixTime();
@@ -231,7 +231,7 @@ public class InterlevelScene extends PixelScene {
 		}
 		Dungeon.switchLevel( level, level.entrance );
 	}
-	
+	//摔落
 	private void fall() throws IOException {
 		
 		Actor.fixTime();
@@ -246,7 +246,7 @@ public class InterlevelScene extends PixelScene {
 		}
 		Dungeon.switchLevel( level, fallIntoPit ? level.pitCell() : level.randomRespawnCell() );
 	}
-	
+	//上楼
 	private void ascend() throws IOException {
 		Actor.fixTime();
 		

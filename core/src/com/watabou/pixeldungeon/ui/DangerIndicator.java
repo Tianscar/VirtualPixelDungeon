@@ -101,6 +101,6 @@ public class DangerIndicator extends Tag {
 		HealthIndicator.instance.target( target == HealthIndicator.instance.target() ? null : target );
 		
 		//Camera.main.followTarget = null;
-		Camera.main.snapTo( target.sprite.center() );
+		Camera.main.panTo( target.sprite.center(), 4f );
 	}
 }

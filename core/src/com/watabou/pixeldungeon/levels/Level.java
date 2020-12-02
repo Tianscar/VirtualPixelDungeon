@@ -71,6 +71,7 @@ import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 import com.watabou.utils.SparseArray;
+import com.watabou.utils.Point;
 
 public abstract class Level implements Bundlable {
 	
@@ -81,8 +82,8 @@ public abstract class Level implements Bundlable {
 		GRASS
 	};
 	
-	public static final int WIDTH = 32;
-	public static final int HEIGHT = 32;
+	public static final int WIDTH = 128;
+	public static final int HEIGHT = 128;
 	public static final int LENGTH = WIDTH * HEIGHT;
 	
 	public static final int[] NEIGHBOURS4 = {-WIDTH, +1, +WIDTH, -1}; 
@@ -886,6 +887,14 @@ public abstract class Level implements Bundlable {
 	public static boolean adjacent( int a, int b ) {
 		int diff = Math.abs( a - b );
 		return diff == 1 || diff == WIDTH || diff == WIDTH + 1 || diff == WIDTH - 1;
+	}
+    
+    public Point cellToPoint( int cell ){
+        return new Point(cell % WIDTH, cell / WIDTH);
+    }
+
+    public int pointToCell( Point p ){
+        return p.x + p.y*WIDTH;
 	}
 	
 	public String tileName( int tile ) {
